@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit811c536752f825fa582719d4261a6467
+class ComposerStaticInit7c6829babc9b132fe38d25ccbd081e83
 {
     public static $classMap = array (
         'Analog\\Dependencies\\enshrined\\svgSanitize\\ElementReference\\Resolver' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Resolver.php',
@@ -24,7 +24,7 @@ class ComposerStaticInit811c536752f825fa582719d4261a6467
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInit811c536752f825fa582719d4261a6467::$classMap;
+            $loader->classMap = ComposerStaticInit7c6829babc9b132fe38d25ccbd081e83::$classMap;
 
         }, null, ClassLoader::class);
     }
