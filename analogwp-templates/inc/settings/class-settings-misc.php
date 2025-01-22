@@ -39,6 +39,18 @@ class Misc extends Settings_Page {
 					'id'   => 'ang_misc',
 				),
 				array(
+					'title'         => __( 'Show Global Kit Data', 'ang' ),
+					'desc'          => sprintf(
+						"%s <a href='https://analogwp.com/docs/global-kit-data/'>%s</a>",
+						__( 'Global Colors and Fonts that belong to the Global Style Kit will still be available when working with other Style Kits.', 'ang' ),
+						__( 'More Info', 'ang' )
+					),
+					'id'            => 'also_inline_global_kit',
+					'default'       => false,
+					'type'          => 'checkbox',
+					'checkboxgroup' => 'start',
+				),
+				array(
 					'title'         => __( 'Usage Data Tracking', 'ang' ),
 					'desc'          => __( 'Opt-in to our anonymous plugin data collection and to updates', 'ang' ),
 					'id'            => 'ang_data_collection',
