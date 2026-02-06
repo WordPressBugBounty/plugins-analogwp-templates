@@ -329,58 +329,6 @@ class Utils extends Base {
 	}
 
 	/**
-	 * Get valid rollback versions.
-	 *
-	 * @since 1.3.7
-	 * @return array|mixed
-	 */
-	public static function get_rollback_versions() {
-		$rollback_versions = get_transient( 'ang_rollback_versions_' . ANG_VERSION );
-
-		if ( false === $rollback_versions ) {
-			$max_versions = 30;
-
-			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-
-			$plugin_information = plugins_api(
-				'plugin_information',
-				array( 'slug' => 'analogwp-templates' )
-			);
-
-			if ( empty( $plugin_information->versions ) || ! is_array( $plugin_information->versions ) ) {
-				return array();
-			}
-
-			krsort( $plugin_information->versions, SORT_NATURAL );
-
-			$rollback_versions = array();
-
-			$current_index = 0;
-
-			foreach ( $plugin_information->versions as $version => $download_link ) {
-				if ( $max_versions <= $current_index ) {
-					break;
-				}
-
-				if ( preg_match( '/(trunk|beta|rc)/i', strtolower( $version ) ) ) {
-					continue;
-				}
-
-				if ( version_compare( $version, ANG_VERSION, '>=' ) ) {
-					continue;
-				}
-
-				$current_index++;
-				$rollback_versions[] = $version;
-			}
-
-			set_transient( 'ang_rollback_versions_' . ANG_VERSION, $rollback_versions, WEEK_IN_SECONDS );
-		}
-
-		return $rollback_versions;
-	}
-
-	/**
 	 * Convert string to boolean.
 	 *
 	 * @param array $data Array object.
@@ -394,7 +342,7 @@ class Utils extends Base {
 
 		array_walk_recursive(
 			$data,
-			function( &$value, $key ) {
+			function ( &$value, $key ) {
 				if ( 'isInner' === $key || 'isLinked' === $key ) {
 					$value = (bool) $value;
 				}
@@ -425,7 +373,7 @@ class Utils extends Base {
 
 		return array_filter(
 			$settings,
-			function( $key ) use ( $allowed ) {
+			function ( $key ) use ( $allowed ) {
 				foreach ( $allowed as $allow ) {
 					if ( strpos( $key, $allow ) === 0 ) {
 						return false;
@@ -560,7 +508,7 @@ class Utils extends Base {
 
 			if ( $global_kit && $post->ID === $global_kit && $prefix ) {
 				/* translators: Global Style Kit post title. */
-				$title = sprintf( __( 'Global: %s', 'ang' ), $title );
+				$title = 'Global: ' . $title;
 			}
 
 			$kits[ $post->ID ] = $title;

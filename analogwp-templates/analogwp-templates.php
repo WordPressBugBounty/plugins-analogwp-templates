@@ -3,14 +3,14 @@
  * Plugin main file.
  *
  * @package     Analog
- * @copyright   2019-2024 SmallTownDev.
+ * @copyright   2026 SmallTownDev.
  * @link        https://analogwp.com
  *
  * @wordpress-plugin
  * Plugin Name: Style Kits for Elementor
  * Plugin URI:  https://analogwp.com/
  * Description: Style Kits extends the Elementor theme styles editor with more global styling options. Boost your design workflow in Elementor with intuitive global controls and theme style presets.
- * Version:     2.3.5
+ * Version:     2.4.2
  * Author:      AnalogWP
  * Author URI:  https://analogwp.com/
  * License:     GPL2
@@ -19,16 +19,16 @@
  * Requires at least: 6.0
  * Requires PHP: 7.4
  *
- * Elementor tested up to: 3.29.2
- * Elementor Pro tested up to: 3.29.2
+ * Elementor tested up to: 3.34.3
+ * Elementor Pro tested up to: 3.34.3
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ANG_ELEMENTOR_MINIMUM', '3.20.0' );
+define( 'ANG_ELEMENTOR_MINIMUM', '3.30.0' );
 define( 'ANG_PHP_MINIMUM', '7.4' );
 define( 'ANG_WP_MINIMUM', '6.0' );
-define( 'ANG_VERSION', '2.3.5' );
+define( 'ANG_VERSION', '2.4.2' );
 define( 'ANG_PLUGIN_FILE', __FILE__ );
 define( 'ANG_PLUGIN_URL', plugin_dir_url( ANG_PLUGIN_FILE ) );
 define( 'ANG_PLUGIN_DIR', plugin_dir_path( ANG_PLUGIN_FILE ) );
@@ -117,13 +117,13 @@ function analog_require_minimum_elementor() {
 	/* translators: %s: Link to rollback plugin to previous version. */
 	$message .= sprintf(
 		'<a href="%s" class="button-secondary" style="margin-left:10px">%s</a>',
-		wp_nonce_url( admin_url( 'admin-post.php?action=ang_rollback&version=' . $versions[0] ), 'ang_rollback' ),
+		wp_nonce_url( admin_url( 'admin-post.php?action=analog_style_kits_rollback&version=' . $versions[0] ), 'analog_style_kits_rollback' ),
 		/* translators: %s: Version number. */
 		sprintf( __( 'Rollback to v%s', 'ang' ), $versions[0] )
 	);
 	$message .= '</p>';
 
-	echo '<div class="error"><p>' . $message . '</p></div>'; // @codingStandardsIgnoreLine
+	echo '<div class="error"><p>' . $message . '</p></div>'; // phpcs:ignore
 }
 
 /**
@@ -197,7 +197,7 @@ if ( ! function_exists( 'sk_fs' ) ) {
 
 		if ( ! isset( $sk_fs ) ) {
 			// Include Freemius SDK.
-			require_once dirname( __FILE__ ) . '/freemius/start.php';
+			require_once __DIR__ . '/freemius/start.php';
 
 			$sk_fs = fs_dynamic_init(
 				array(
@@ -211,7 +211,10 @@ if ( ! function_exists( 'sk_fs' ) ) {
 					'menu'           => array(
 						'slug'       => 'analogwp_templates',
 						'first-path' => 'admin.php?page=analog_onboarding&from=freemius',
+						'account'    => false,
 						'support'    => false,
+						'contact'    => false,
+						'addons'     => false,
 					),
 				)
 			);

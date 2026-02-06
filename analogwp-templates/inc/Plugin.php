@@ -2,12 +2,13 @@
 /**
  * Class Analog\Plugin.
  *
- * @copyright 2024 SmallTownDev
+ * @copyright SmallTownDev
  * @package Analog
  */
 
 namespace Analog;
 
+use Analog\Featuresets\Register_Featuresets as Featuresets;
 use Analog\Admin\Notices;
 use Analog\Elementor\Google_Fonts;
 
@@ -71,6 +72,9 @@ final class Plugin {
 
 		add_action( 'admin_bar_menu', array( self::$instance, 'add_kit_to_menu_bar' ), 400 );
 
+		// Register Featuresets.
+		Featuresets::get_instance();
+
 		( new Consumer() )->register();
 		( new Notices() )->register();
 		( new Google_Fonts() )->register();
@@ -116,9 +120,7 @@ final class Plugin {
 		$i10n = apply_filters( // phpcs:ignore
 			'analog/app/strings',
 			array(
-				'is_settings_page'  => 'toplevel_page_analogwp_templates' === $hook,
-				'rollback_url'      => wp_nonce_url( admin_url( 'admin-post.php?action=ang_rollback&version=VERSION' ), 'ang_rollback' ),
-				'rollback_versions' => Utils::get_rollback_versions(),
+				'is_settings_page' => 'toplevel_page_analogwp_templates' === $hook,
 			)
 		);
 
@@ -238,6 +240,7 @@ final class Plugin {
 
 		require_once ANG_PLUGIN_DIR . 'inc/register-settings.php';
 		require_once ANG_PLUGIN_DIR . 'inc/settings-helpers.php';
+		require_once ANG_PLUGIN_DIR . 'inc/Featuresets/class-register-featuresets.php';
 		require_once ANG_PLUGIN_DIR . 'inc/class-base.php';
 		require_once ANG_PLUGIN_DIR . 'inc/class-import-image.php';
 		require_once ANG_PLUGIN_DIR . 'inc/class-options.php';
@@ -293,7 +296,7 @@ final class Plugin {
 	 * @return void
 	 */
 	public function add_kit_to_menu_bar( \WP_Admin_Bar $wp_admin_bar ) {
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG  ) {
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
 			return;
 		}
 
@@ -307,17 +310,21 @@ final class Plugin {
 		}
 
 		$parent = 'style_kits';
-		$wp_admin_bar->add_menu( array(
-			'id'     => $parent,
-			'parent' => 'elementor_inspector',
-			'title'  => 'Style Kit',
-		) );
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => $parent,
+				'parent' => 'elementor_inspector',
+				'title'  => 'Style Kit',
+			)
+		);
 
-		$wp_admin_bar->add_menu( array(
-			'id'     => 'style_kits_kit',
-			'parent' => $parent,
-			'title'  => 'Kit: ' . $title,
-		) );
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'style_kits_kit',
+				'parent' => $parent,
+				'title'  => 'Kit: ' . $title,
+			)
+		);
 	}
 
 	/**
@@ -348,7 +355,7 @@ final class Plugin {
 	 * @return Plugin Plugin main instance.
 	 */
 	public static function instance() {
-		return static::$instance;
+		return self::$instance;
 	}
 
 	/**
@@ -360,12 +367,12 @@ final class Plugin {
 	 * @return bool True if the plugin main instance could be loaded, false otherwise.
 	 */
 	public static function load( $main_file ) {
-		if ( null !== static::$instance ) {
+		if ( null !== self::$instance ) {
 			return false;
 		}
 
-		static::$instance = new static( $main_file );
-		static::$instance->register();
+		self::$instance = new self( $main_file );
+		self::$instance->register();
 
 		do_action( 'ang_loaded' );
 

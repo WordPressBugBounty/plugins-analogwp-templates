@@ -7,7 +7,6 @@
 
 namespace Analog\Settings;
 
-use Analog\Utils;
 use Analog\Options;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,7 +45,7 @@ class Admin_Settings {
 		if ( empty( self::$settings ) ) {
 			$settings = array();
 
-			include_once dirname( __FILE__ ) . '/settings/class-settings-page.php';
+			include_once __DIR__ . '/settings/class-settings-page.php';
 
 			$settings[] = include 'settings/class-settings-general.php';
 			$settings[] = include 'settings/class-settings-experiments.php';
@@ -59,6 +58,35 @@ class Admin_Settings {
 		}
 
 		return self::$settings;
+	}
+
+	/**
+	 * Register AJAX handlers for settings.
+	 */
+	public static function register_ajax_handlers() {
+		add_action( 'wp_ajax_ang_hide_promo', array( __CLASS__, 'ajax_hide_promo' ) );
+	}
+
+	/**
+	 * AJAX handler to hide a promo banner.
+	 */
+	public static function ajax_hide_promo() {
+		check_ajax_referer( 'ang_hide_promo', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'ang' ) ) );
+		}
+
+		$promo_id = isset( $_POST['promo_id'] ) ? sanitize_key( $_POST['promo_id'] ) : '';
+
+		if ( empty( $promo_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid promo ID.', 'ang' ) ) );
+		}
+
+		// Store the hidden state in the database.
+		update_option( 'ang_hide_' . $promo_id, true );
+
+		wp_send_json_success( array( 'message' => __( 'Promo hidden successfully.', 'ang' ) ) );
 	}
 
 	/**
@@ -130,20 +158,23 @@ class Admin_Settings {
 		wp_localize_script(
 			'ang_settings',
 			'ang_settings_data',
-			array(
-				'i18n_nav_warning'          => __( 'The changes you made will be lost if you navigate away from this page.', 'ang' ),
-				'rollback_url'              => wp_nonce_url( admin_url( 'admin-post.php?action=ang_rollback&version=VERSION' ), 'ang_rollback' ),
-				'rollback_versions'         => Utils::get_rollback_versions(),
-				'sitekit_importer_notice'   => __( 'Template Kit file downloaded.', 'ang' ),
-				'sitekit_importer_url_text' => __( 'Import it into Elementor', 'ang' ),
-				'sitekit_importer_url'      => esc_url( admin_url( 'admin.php?page=elementor-tools#tab-import-export-kit' ) ),
+			apply_filters(
+				'ang_settings_data',
+				array(
+					'i18n_nav_warning'          => __( 'The changes you made will be lost if you navigate away from this page.', 'ang' ),
+					'sitekit_importer_notice'   => __( 'Template Kit file downloaded.', 'ang' ),
+					'sitekit_importer_url_text' => __( 'Import it into Elementor', 'ang' ),
+					'sitekit_importer_url'      => esc_url( admin_url( 'admin.php?page=elementor-tools#tab-import-export-kit' ) ),
+					'hide_promo_nonce'          => wp_create_nonce( 'ang_hide_promo' ),
+					'ajax_url'                  => admin_url( 'admin-ajax.php' ),
+				)
 			)
 		);
 
 		// Get tabs for the settings page.
 		$tabs = apply_filters( 'ang_settings_tabs_array', array() );
 
-		include dirname( __FILE__ ) . '/settings/views/html-admin-settings.php';
+		include __DIR__ . '/settings/views/html-admin-settings.php';
 	}
 
 	/**
@@ -485,7 +516,7 @@ class Admin_Settings {
 								class="<?php echo esc_attr( $value['class'] ); ?>"
 								<?php echo implode( ' ', $custom_attributes ); // WPCS: XSS ok. ?>
 								<?php echo 'multiselect' === $value['type'] ? 'multiple="multiple"' : ''; ?>
-								<?php echo $disabled ? ' disabled="true"': ''; ?>
+								<?php echo $disabled ? ' disabled="true"' : ''; ?>
 								>
 								<?php
 								foreach ( $value['options'] as $key => $val ) {
